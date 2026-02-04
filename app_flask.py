@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, redirect, url_for, session, flash, jsonify
-import psycopg2
+import sqlite3
 import bcrypt
 import joblib
 import pandas as pd
@@ -20,18 +20,15 @@ app.secret_key = 'your-secret-key-change-this-in-production'  # Change this in p
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 MODELS_DIR = os.path.join(BASE_DIR, "models")
 ASSETS_DIR = BASE_DIR
+DATABASE_PATH = os.path.join(BASE_DIR, "medical_ai.db")
 
 # ==================================================
-# Database Functions
+# Database Functions (SQLite)
 # ==================================================
 def get_connection():
-    return psycopg2.connect(
-        host="localhost",
-        dbname="medical_ai",
-        user="postgres",
-        password="12345678",
-        port=5432
-    )
+    conn = sqlite3.connect(DATABASE_PATH)
+    conn.row_factory = sqlite3.Row  # Enable row access by column name
+    return conn
 
 def init_db():
     conn = None
@@ -40,31 +37,32 @@ def init_db():
         cur = conn.cursor()
         cur.execute("""
             CREATE TABLE IF NOT EXISTS users (
-                id SERIAL PRIMARY KEY,
-                name VARCHAR(100),
-                email VARCHAR(100) UNIQUE,
-                password VARCHAR(200)
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT,
+                email TEXT UNIQUE,
+                password TEXT
             )
         """)
         conn.commit()
         cur.execute("""
             CREATE TABLE IF NOT EXISTS patient_records (
-                id SERIAL PRIMARY KEY,
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
                 user_id INTEGER REFERENCES users(id),
-                first_name VARCHAR(50),
-                last_name VARCHAR(50),
-                phone VARCHAR(20),
+                first_name TEXT,
+                last_name TEXT,
+                phone TEXT,
                 age INTEGER,
-                gender VARCHAR(10),
+                gender TEXT,
                 symptoms TEXT,
-                disease VARCHAR(50),
-                diagnosis_result VARCHAR(50),
-                confidence_score FLOAT,
+                disease TEXT,
+                diagnosis_result TEXT,
+                confidence_score REAL,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
         """)
         conn.commit()
         cur.close()
+        print(f"Database initialized at: {DATABASE_PATH}")
     except Exception as e:
         print(f"DB init error: {e}")
     finally:
@@ -175,12 +173,12 @@ def add_user(name: str, email: str, password: str):
         conn = get_connection()
         cur = conn.cursor()
         hashed_pw = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
-        cur.execute("INSERT INTO users (name, email, password) VALUES (%s, %s, %s)",
+        cur.execute("INSERT INTO users (name, email, password) VALUES (?, ?, ?)",
                     (name, email, hashed_pw))
         conn.commit()
         cur.close()
         return True, "Account created successfully! Please log in."
-    except psycopg2.errors.UniqueViolation:
+    except sqlite3.IntegrityError:
         if conn:
             conn.rollback()
         return False, "Email already registered. Please log in."
@@ -197,7 +195,7 @@ def login_user(email: str, password: str):
     try:
         conn = get_connection()
         cur = conn.cursor()
-        cur.execute("SELECT id, name, email, password FROM users WHERE email=%s", (email,))
+        cur.execute("SELECT id, name, email, password FROM users WHERE email=?", (email,))
         user = cur.fetchone()
         cur.close()
         if user and bcrypt.checkpw(password.encode('utf-8'), user[3].encode('utf-8')):
@@ -228,7 +226,7 @@ def save_patient_record(user_id: int, patient_data: dict, disease: str, result: 
         cur.execute("""
             INSERT INTO patient_records (
                 user_id, first_name, last_name, phone, age, gender, symptoms, disease, diagnosis_result, confidence_score
-            ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """, (
             user_id,
             patient_data.get("first_name", "Unknown"),
@@ -259,7 +257,7 @@ def get_patient_records(user_id: int):
         cur.execute("""
             SELECT first_name, last_name, phone, age, gender, symptoms, disease, diagnosis_result, confidence_score, created_at
             FROM patient_records
-            WHERE user_id = %s
+            WHERE user_id = ?
             ORDER BY created_at DESC
         """, (user_id,))
         records = cur.fetchall()
