@@ -1,0 +1,210 @@
+/* ------------------- Background Setup ------------------- */
+.stApp {
+    background-image: url("bg.png"); /* keep your original background */
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    font-family: "Poppins", sans-serif;
+    color: #fff;
+}
+
+/* ---- Overlay for subtle contrast ---- */
+.stApp::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.55);
+    backdrop-filter: blur(2px);
+    z-index: -1;
+}
+
+/* ------------------- Form Glass Container ------------------- */
+.form-border {
+    border: 2.5px solid rgba(0, 255, 213, 0.8);
+    border-radius: 25px;
+    padding: 40px 45px;
+    max-width: 500px;
+    margin: 60px auto;
+    background-color: rgba(0, 0, 0, 0.35);
+    box-shadow: 0 0 25px rgba(0, 255, 213, 0.7);
+    backdrop-filter: blur(12px);
+    animation: glowBorder 2s ease-in-out infinite alternate;
+    text-align: center;
+}
+
+@keyframes glowBorder {
+    0% { box-shadow: 0 0 15px rgba(0, 255, 213, 0.5); }
+    50% { box-shadow: 0 0 35px rgba(0, 255, 213, 0.9); }
+    100% { box-shadow: 0 0 15px rgba(0, 255, 213, 0.5); }
+}
+
+/* ------------------- Inputs ------------------- */
+input {
+    background-color: rgba(255, 255, 255, 0.15) !important;
+    color: #fff !important;
+    border: 1px solid rgba(255, 255, 255, 0.3) !important;
+    border-radius: 10px !important;
+    padding: 10px 12px;
+    width: 100%;
+    transition: all 0.3s ease;
+    font-size: 14px;
+}
+
+input:focus {
+    border: 1px solid #00ffd5 !important;
+    box-shadow: 0 0 12px #00ffd5 !important;
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+/* ------------------- Buttons ------------------- */
+.stButton > button {
+    background: linear-gradient(90deg, #00ffd5, #00bfa5);
+    color: #000 !important;
+    font-weight: 600;
+    border: none;
+    border-radius: 25px;
+    padding: 12px 30px;
+    transition: all 0.3s ease;
+    box-shadow: 0 0 15px rgba(0, 255, 213, 0.5);
+}
+
+.stButton > button:hover {
+    transform: scale(1.05);
+    background: linear-gradient(90deg, #00bfa5, #00ffd5);
+    box-shadow: 0 0 25px rgba(0, 255, 213, 0.8);
+}
+
+/* ------------------- Tabs ------------------- */
+div[data-baseweb="tab-list"] {
+    justify-content: center;
+    margin-bottom: 1rem;
+}
+
+div[data-baseweb="tab"] {
+    background-color: rgba(255, 255, 255, 0.15);
+    color: #ffffff !important;
+    border-radius: 15px;
+    margin: 0 8px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    padding: 8px 20px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+div[data-baseweb="tab"]:hover {
+    background-color: rgba(0, 255, 213, 0.3);
+    color: #000 !important;
+}
+
+div[data-baseweb="tab-highlight"] {
+    background-color: #00ffd5 !important;
+}
+
+/* ------------------- Headings ------------------- */
+h1, h2, h3, h4, h5 {
+    color: #ffffff !important;
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.4);
+    font-weight: 700;
+}
+
+/* ------------------- Card Layout (Modes/Options) ------------------- */
+[data-testid="stHorizontalBlock"] {
+    align-items: stretch !important;
+    gap: 2rem !important;
+    flex-wrap: wrap;
+}
+
+[data-testid="stHorizontalBlock"] > div {
+    background: rgba(30, 30, 30, 0.9);
+    border-radius: 18px;
+    padding: 20px 18px;
+    margin: 10px 0;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.6);
+    border: 2px solid rgba(0, 255, 213, 0.7);
+    backdrop-filter: blur(10px);
+    transition: transform 0.3s, box-shadow 0.3s;
+    animation: glowBorder 2s ease-in-out infinite alternate;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 0.8rem;
+    min-height: 280px;
+}
+
+[data-testid="stHorizontalBlock"] > div:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 8px 25px rgba(0,255,213,0.6);
+}
+
+/* ------------------- Card Content ------------------- */
+.card-title {
+    color: #00ffd5 !important;
+    font-size: 1.6rem;
+    font-weight: 700;
+    text-align: center;
+    margin: 10px 0 8px 0;
+    text-transform: uppercase;
+}
+
+.centered-image {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 60%;
+    width: 100%;
+    overflow: hidden;
+    margin: 5px 0 10px 0;
+}
+
+[data-testid="stImage"] {
+    display: flex;
+    justify-content: center;
+    width: 100% !important;
+}
+
+[data-testid="stImage"] img {
+    max-height: 220px;
+    object-fit: contain !important;
+    border-radius: 10px;
+    filter: drop-shadow(0 0 8px rgba(0,255,213,0.5));
+}
+
+/* ------------------- Description ------------------- */
+.card-description {
+    color: #ddd;
+    font-size: 1rem;
+    text-align: center;
+    margin-bottom: 10px;
+    line-height: 1.4;
+}
+
+/* ------------------- Responsive ------------------- */
+@media (max-width: 900px) {
+    [data-testid="stHorizontalBlock"] {
+        flex-direction: column !important;
+        gap: 1.5rem !important;
+    }
+
+    [data-testid="stHorizontalBlock"] > div {
+        min-height: auto;
+        padding: 18px;
+    }
+
+    .centered-image {
+        height: 180px;
+    }
+
+    .card-title {
+        font-size: 1.4rem;
+    }
+
+    .card-description {
+        font-size: 0.95rem;
+    }
+}
